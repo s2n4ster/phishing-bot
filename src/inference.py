@@ -8,6 +8,9 @@ from config import MODELS_DIR
 from models import get_model
 from preprocessing import URLTokenizer
 
+# На сервере Railway достаточно одного потока для одной проверки ссылки.
+torch.set_num_threads(1)
+
 
 SAFE_DOMAINS = {
     "google.com",
