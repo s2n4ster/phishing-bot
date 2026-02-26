@@ -9,12 +9,11 @@
 - `src/train.py` — обучение модели
 - `src/db.py` — история проверок (SQLite)
 - `models/lstm_best.pt` — обученная модель
-- `models/plots/` — графики для защиты
-- `logs/` — логи обучения
-- `requirements.txt` — зависимости
 - `railway.json` — конфиг деплоя Railway
+- `requirements.txt` — зависимости для Railway (runtime)
+- `requirements-train.txt` — зависимости для локального обучения
 
-## Локальный запуск
+## Локальный запуск бота
 
 ```bash
 pip install -r requirements.txt
@@ -25,6 +24,13 @@ python src/bot.py
 
 ```env
 BOT_TOKEN=your_telegram_bot_token
+```
+
+## Локальное обучение модели
+
+```bash
+pip install -r requirements-train.txt
+python src/train.py --model lstm --dataset ../data/malicious_phish.csv
 ```
 
 ## Railway
@@ -38,16 +44,6 @@ BOT_TOKEN=your_telegram_bot_token
 ```bash
 python src/bot.py
 ```
-
-## Примеры для проверки
-
-Безопасные:
-- `https://google.com`
-- `https://github.com`
-
-Подозрительные:
-- `http://secure-login-google.example`
-- `http://192.168.10.15/login`
 
 ## Важно
 

@@ -1,0 +1,13 @@
+.git
+.gitignore
+.env
+.env.*
+__pycache__/
+*.pyc
+
+# not needed at runtime
+logs/
+models/plots/
+data/malicious_phish.csv
+data/bot_history.db
+src/__pycache__/
