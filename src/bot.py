@@ -33,7 +33,9 @@ def find_urls(text: str) -> list[str]:
 
 
 def format_result(data: dict) -> str:
-    label = "ОПАСНО" if data["is_dangerous"] else "БЕЗОПАСНО"
+    label = data.get("result_label")
+    if not label:
+        label = "ОПАСНО" if data["is_dangerous"] else "БЕЗОПАСНО"
 
     text = (
         f"Проверка ссылки:\n"

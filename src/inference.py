@@ -79,14 +79,61 @@ class URLChecker:
         with torch.no_grad():
             probability = self.model(input_tensor).item()
 
-        is_dangerous = probability > 0.5
-        confidence = probability if is_dangerous else 1 - probability
+        # Простая "серая зона", чтобы не было резкого решения около 0.5.
+        if probability >= 0.55:
+            is_dangerous = True
+            confidence = probability
+        elif probability <= 0.45:
+            is_dangerous = False
+            confidence = 1 - probability
+        else:
+            is_dangerous = False
+            confidence = abs(probability - 0.5) * 2
+
         return is_dangerous, confidence
 
     def analyze(self, url: str) -> dict:
-        is_dangerous, confidence = self.check(url)
         url_lower = url.lower()
+        domain = self._get_domain(url)
         suspicious_signs = []
+
+        if domain in SAFE_DOMAINS:
+            is_dangerous = False
+            confidence = 0.99
+            risk_level = "БЕЗОПАСНО"
+            result_label = "БЕЗОПАСНО"
+        else:
+            encoded = self.tokenizer.encode(url)
+            input_tensor = torch.tensor([encoded], dtype=torch.long).to(self.device)
+
+            with torch.no_grad():
+                probability = self.model(input_tensor).item()
+
+            if probability >= 0.55:
+                is_dangerous = True
+                confidence = probability
+                result_label = "ОПАСНО"
+                if confidence > 0.9:
+                    risk_level = "ВЫСОКИЙ РИСК"
+                elif confidence > 0.7:
+                    risk_level = "СРЕДНИЙ РИСК"
+                else:
+                    risk_level = "НИЗКИЙ РИСК"
+            elif probability <= 0.45:
+                is_dangerous = False
+                confidence = 1 - probability
+                result_label = "БЕЗОПАСНО"
+                if confidence > 0.9:
+                    risk_level = "БЕЗОПАСНО"
+                elif confidence > 0.7:
+                    risk_level = "ВЕРОЯТНО БЕЗОПАСНО"
+                else:
+                    risk_level = "ТРЕБУЕТ ПРОВЕРКИ"
+            else:
+                is_dangerous = False
+                confidence = abs(probability - 0.5) * 2
+                result_label = "ТРЕБУЕТ ПРОВЕРКИ"
+                risk_level = "ТРЕБУЕТ ПРОВЕРКИ"
 
         if any(word in url_lower for word in ["login", "verify", "secure", "account", "update"]):
             suspicious_signs.append("Подозрительные слова в адресе")
@@ -103,24 +150,10 @@ class URLChecker:
         if any(short in url_lower for short in ["bit.ly", "tinyurl", "t.co", "clck.ru"]):
             suspicious_signs.append("Используется сокращатель ссылок")
 
-        if not is_dangerous:
-            if confidence > 0.9:
-                risk_level = "БЕЗОПАСНО"
-            elif confidence > 0.7:
-                risk_level = "ВЕРОЯТНО БЕЗОПАСНО"
-            else:
-                risk_level = "ТРЕБУЕТ ПРОВЕРКИ"
-        else:
-            if confidence > 0.9:
-                risk_level = "ВЫСОКИЙ РИСК"
-            elif confidence > 0.7:
-                risk_level = "СРЕДНИЙ РИСК"
-            else:
-                risk_level = "НИЗКИЙ РИСК"
-
         return {
             "url": url,
             "is_dangerous": is_dangerous,
+            "result_label": result_label,
             "confidence": confidence,
             "risk_level": risk_level,
             "suspicious_signs": suspicious_signs,
