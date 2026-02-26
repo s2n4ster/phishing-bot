@@ -1,6 +1,7 @@
 # Runtime dependencies for Railway (bot only)
 aiogram>=3.2.0
 python-dotenv>=1.0.0
+numpy>=1.24.0
 
 # CPU-only PyTorch (faster build on Railway)
 --extra-index-url https://download.pytorch.org/whl/cpu

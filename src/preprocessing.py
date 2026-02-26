@@ -1,6 +1,5 @@
 """Подготовка данных ссылок для модели."""
 
-import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
@@ -30,6 +29,8 @@ class URLTokenizer:
 
 
 def load_dataset(filepath: str):
+    import pandas as pd
+
     print(f"Загружаю датасет: {filepath}")
     df = pd.read_csv(filepath)
 
