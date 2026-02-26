@@ -13,6 +13,7 @@ torch.set_num_threads(1)
 
 
 SAFE_DOMAINS = {
+    "example.com",
     "google.com",
     "youtube.com",
     "github.com",
@@ -112,7 +113,7 @@ class URLChecker:
             raw_probability = self.model(input_tensor).item()
 
         if raw_probability > 0.8 and len(url_lower) < 20 and not suspicious_signs:
-            probability = 0.55 + (raw_probability * 0.1)
+            probability = 0.48
         elif raw_probability < 0.5 and suspicious_signs:
             probability = raw_probability + (len(suspicious_signs) * 0.15)
             probability = min(0.99, probability)
