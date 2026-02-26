@@ -1,0 +1,15 @@
+# secrets
+.env
+
+# python cache
+__pycache__/
+*.pyc
+
+# local data
+data/bot_history.db
+src/__pycache__/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
